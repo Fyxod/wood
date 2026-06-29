@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+.env
+.DS_Store
+
+# Large/local artifacts
+outputs/**/cache/
+outputs/**/model_cache/
+models/
+*.ckpt
+*.safetensors
+*.pt
+!outputs/**/theta_final.pt
+!outputs/**/theta_best.pt
+
+# Logs are intentionally addable when useful.

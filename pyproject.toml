@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wood"
+version = "0.1.0"
+description = "InstructPix2Pix-only white-box geometry optimization with blank objective-space reference."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "torch",
+  "torchvision",
+  "diffusers",
+  "transformers",
+  "accelerate",
+  "safetensors",
+  "pillow",
+  "numpy",
+  "scipy",
+  "pandas",
+  "scikit-image",
+  "matplotlib",
+  "sentencepiece",
+  "protobuf",
+]
+
+[tool.setuptools.packages.find]
+include = ["wood*"]

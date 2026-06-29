@@ -1,0 +1,13 @@
+faces:
+  - face_002
+  - face_005
+prompts:
+  - add black sunglasses
+  - add headphones
+objectives:
+  - vae_conditioning
+  - unet_prediction
+model: instruct
+iterations: 150
+seed: 1234
+blank_value: 0.0

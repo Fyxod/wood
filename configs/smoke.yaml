@@ -1,0 +1,7 @@
+mode: smoke_timing
+iters: 2
+quick: true
+output_root: outputs/smoke_timing
+blank_value: 0.0
+lr: 0.05
+init: neutral

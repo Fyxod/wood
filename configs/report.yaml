@@ -1,0 +1,10 @@
+results_root: outputs/blank_objective_ref
+output_root: outputs/reports/blank_objective_ref
+graphs:
+  - Z_vs_iteration
+  - loss_vs_iteration
+  - psnr_to_original_vs_iteration
+  - ssim_to_original_vs_iteration
+  - component_max_displacement_vs_iteration
+  - fraction_clamped_vs_iteration
+  - final_Z_vs_final_SSIM_scatter
