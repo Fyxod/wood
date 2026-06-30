@@ -1,0 +1,33 @@
+{
+  "Z_definition": "Z = MSE(selected_instruct_objective(perturbed), selected_instruct_objective(blank))",
+  "all_cases": true,
+  "blank_value": 0.0,
+  "geometry_limits": {
+    "dct_limit_px": 4.096,
+    "delaunay_limit_px": 5.12,
+    "fft_phase_limit_rad": 3.141592653589793,
+    "rolling_limit_px": 4.608,
+    "tps_limit_px": 3.584
+  },
+  "init": "neutral",
+  "iters": 2,
+  "loss": "loss = -Z",
+  "lr": 0.05,
+  "mat_root": "/home/interns/Desktop/mat",
+  "mode": "smoke_timing",
+  "model_weights_frozen": true,
+  "no_visual_counter_loss": true,
+  "output_root": "/home/interns/Desktop/wood/outputs/smoke_timing",
+  "quick": false,
+  "seed": 1234,
+  "skip_final_edits": false,
+  "spec": {
+    "face_id": "face_002",
+    "image_path": "/home/interns/Desktop/mat/data/face_002/instruct_512.png",
+    "model": "instruct",
+    "objective": "vae_conditioning",
+    "prompt": "add headphones",
+    "seed": 1234,
+    "variant": "blank_objective_ref"
+  }
+}

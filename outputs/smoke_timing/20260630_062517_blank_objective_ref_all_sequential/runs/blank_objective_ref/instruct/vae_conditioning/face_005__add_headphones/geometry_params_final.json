@@ -1,0 +1,44 @@
+{
+  "last_projection": {
+    "components_at_boundary": "",
+    "fft_phase_num_at_max": 0,
+    "fft_phase_num_at_min": 0,
+    "fft_phase_num_clamped": 0,
+    "fraction_clamped_total": 0.0,
+    "num_at_max_total": 0,
+    "num_at_min_total": 0,
+    "num_clamped_total": 0,
+    "num_total_params": 324
+  },
+  "limits": {
+    "dct_limit_px": 4.096,
+    "delaunay_limit_px": 5.12,
+    "fft_phase_limit_rad": 3.141592653589793,
+    "rolling_limit_px": 4.608,
+    "tps_limit_px": 3.584
+  },
+  "parameter_diagnostics": {
+    "dct_num_at_max": 0,
+    "dct_num_at_min": 0,
+    "dct_param_max": 0.09934894740581512,
+    "dct_param_mean_abs": 0.06934942305088043,
+    "dct_param_min": -0.1000448539853096,
+    "delaunay_num_at_max": 0,
+    "delaunay_num_at_min": 0,
+    "delaunay_param_max": 0.10006670653820038,
+    "delaunay_param_mean_abs": 0.02563624083995819,
+    "delaunay_param_min": -0.0986921414732933,
+    "fft_phase_num_at_max": 0,
+    "fft_phase_num_at_min": 0,
+    "rolling_num_at_max": 0,
+    "rolling_num_at_min": 0,
+    "rolling_param_max": 0.01899024285376072,
+    "rolling_param_mean_abs": 0.018384188413619995,
+    "rolling_param_min": 0.01777813583612442,
+    "tps_num_at_max": 0,
+    "tps_num_at_min": 0,
+    "tps_param_max": 0.10006465762853622,
+    "tps_param_mean_abs": 0.02179523929953575,
+    "tps_param_min": -0.09486130625009537
+  }
+}

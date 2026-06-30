@@ -1,0 +1,16 @@
+[wood] instruct face_002: /home/interns/Desktop/mat/data/face_002/instruct_512.png
+[wood] instruct face_005: /home/interns/Desktop/mat/data/face_005/instruct_512.png
+Loading pipeline components...:   0%|          | 0/6 [00:00<?, ?it/s]Loading pipeline components...:  33%|███▎      | 2/6 [00:00<00:01,  2.79it/s]Loading pipeline components...:  50%|█████     | 3/6 [00:03<00:04,  1.47s/it]
+Loading weights:   0%|          | 0/196 [00:00<?, ?it/s][A
+Loading weights:  90%|████████▉ | 176/196 [00:00<00:00, 1703.56it/s][ALoading weights: 100%|██████████| 196/196 [00:00<00:00, 1811.91it/s]
+Loading pipeline components...:  83%|████████▎ | 5/6 [00:04<00:00,  1.29it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:04<00:00,  1.65it/s]Loading pipeline components...: 100%|██████████| 6/6 [00:04<00:00,  1.39it/s]
+[wood] running blank_objective_ref__instruct__vae_conditioning__face_002__add_black_sunglasses image=/home/interns/Desktop/mat/data/face_002/instruct_512.png
+[wood] running blank_objective_ref__instruct__vae_conditioning__face_002__add_headphones image=/home/interns/Desktop/mat/data/face_002/instruct_512.png
+[wood] running blank_objective_ref__instruct__vae_conditioning__face_005__add_black_sunglasses image=/home/interns/Desktop/mat/data/face_005/instruct_512.png
+[wood] running blank_objective_ref__instruct__vae_conditioning__face_005__add_headphones image=/home/interns/Desktop/mat/data/face_005/instruct_512.png
+[wood] running blank_objective_ref__instruct__unet_prediction__face_002__add_black_sunglasses image=/home/interns/Desktop/mat/data/face_002/instruct_512.png
+[wood] running blank_objective_ref__instruct__unet_prediction__face_002__add_headphones image=/home/interns/Desktop/mat/data/face_002/instruct_512.png
+[wood] running blank_objective_ref__instruct__unet_prediction__face_005__add_black_sunglasses image=/home/interns/Desktop/mat/data/face_005/instruct_512.png
+[wood] running blank_objective_ref__instruct__unet_prediction__face_005__add_headphones image=/home/interns/Desktop/mat/data/face_005/instruct_512.png
+[wood] matrix summary: outputs/blank_objective_ref/20260630_062726_blank_objective_ref_all_sequential
+[wood] completed runs: 8 failures: 0

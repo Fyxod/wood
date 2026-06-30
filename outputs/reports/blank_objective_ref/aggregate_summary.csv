@@ -1,0 +1,3 @@
+mean_final_Z,mean_final_output_l2,mean_final_ssim_to_original,num_runs,objective_name
+0.0025038664462044835,0.0,1.0,4,unet_prediction
+150.1454620361328,0.28193581089395725,0.5711316913366318,4,vae_conditioning

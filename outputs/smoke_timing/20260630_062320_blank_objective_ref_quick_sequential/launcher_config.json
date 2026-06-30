@@ -1,0 +1,13 @@
+{
+  "all_cases": false,
+  "blank_value": 0.0,
+  "init": "neutral",
+  "iters": 2,
+  "lr": 0.05,
+  "mat_root": "/home/interns/Desktop/mat",
+  "mode": "smoke_timing",
+  "output_root": "/home/interns/Desktop/wood/outputs/smoke_timing",
+  "quick": true,
+  "seed": 1234,
+  "skip_final_edits": false
+}

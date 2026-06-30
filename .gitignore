@@ -16,6 +16,8 @@ models/
 *.ckpt
 *.safetensors
 *.pt
+theta_best.pt
+theta_final.pt
 !outputs/**/theta_final.pt
 !outputs/**/theta_best.pt
 
