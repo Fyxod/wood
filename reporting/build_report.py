@@ -27,7 +27,7 @@ OUTPUT_BASENAME = "wood_report"
 # Optional default run folder. Leave empty to auto-select the latest completed
 # folder under outputs/blank_objective_ref. You can also override this from the
 # CLI with: --run-folder 20260630_070226_blank_objective_ref_all_sequential
-RUN_FOLDER_NAME = ""
+RUN_FOLDER_NAME = "20260630_083256_blank_objective_ref_all_sequential"
 
 # Default report quality. Keep this True for the compact report currently used
 # in the repo. Set to False, or pass --no-compress-report, to generate a larger
