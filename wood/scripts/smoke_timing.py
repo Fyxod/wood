@@ -14,8 +14,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--blank-value", type=float, default=0.0)
     parser.add_argument("--lr", type=float, default=0.05)
     parser.add_argument("--seed", type=int, default=1234)
-    parser.add_argument("--init", choices=["neutral", "small_random"], default="neutral")
+    parser.add_argument("--init", choices=["neutral", "small_random"], default=None, help="Override init in the geometry JSON.")
     parser.add_argument("--unet-backward-scale", type=float, default=8192.0)
+    parser.add_argument("--geometry-config", default=None, help="JSON file controlling perturbation on/off toggles and hard ranges.")
     parser.add_argument("--skip-final-edits", action="store_true", help="Skip final Instruct edited outputs during debugging only.")
     parser.add_argument("--output-root", default=None)
     return parser.parse_args()
@@ -29,6 +30,7 @@ def main() -> None:
 
     repo_root = Path(__file__).resolve().parents[2]
     output_root = Path(args.output_root) if args.output_root else repo_root / "outputs" / "smoke_timing"
+    geometry_config = Path(args.geometry_config).resolve() if args.geometry_config else repo_root / "configs" / "geometry_default.json"
     cfg = RunConfig(
         mat_root=str(Path(args.mat_root).resolve()),
         output_root=str(output_root),
@@ -38,6 +40,7 @@ def main() -> None:
         seed=args.seed,
         init=args.init,
         unet_backward_scale=args.unet_backward_scale,
+        geometry_config_path=str(geometry_config),
         quick=args.quick,
         all_cases=args.all_cases,
         mode="smoke_timing",

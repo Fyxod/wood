@@ -19,10 +19,18 @@ class FFTPhaseStats:
 
 
 class FFTPhasePerturbation(torch.nn.Module):
-    def __init__(self, channels: int, phase_size: int, init_scale: float, device: torch.device, seed: int) -> None:
+    def __init__(
+        self,
+        channels: int,
+        phase_size: int,
+        init_scale: float,
+        device: torch.device,
+        seed: int,
+        max_phase_rad: float = math.pi,
+    ) -> None:
         super().__init__()
         generator = torch.Generator(device=device).manual_seed(seed + 5051)
-        self.max_phase_rad = math.pi
+        self.max_phase_rad = float(max_phase_rad)
         self.raw_phase = torch.nn.Parameter(
             torch.randn(1, channels, phase_size, phase_size, device=device, generator=generator) * init_scale
         )

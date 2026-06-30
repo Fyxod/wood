@@ -72,6 +72,37 @@ Default hard projection ranges are mapped from the old geometric-v1 strength-sty
 
 For 512×512 inputs these correspond roughly to 3.6 px, 5.1 px, 4.6 px, and 4.1 px for the spatial components. FFT logs `legacy_fft_strength_equivalent = mean_abs_phase_delta / pi * 1_000_000`.
 
+Geometry ranges and component toggles are controlled by JSON. The default file is:
+
+```text
+configs/geometry_default.json
+```
+
+Each component has an `enabled` flag. Spatial components accept either `norm_limit` or `px_limit`; if `px_limit` is non-null it overrides `norm_limit`.
+
+Example:
+
+```json
+{
+  "components": {
+    "tps": {"enabled": true, "norm_limit": 0.007, "px_limit": null},
+    "delaunay": {"enabled": false, "norm_limit": 0.010, "px_limit": null},
+    "rolling": {"enabled": true, "norm_limit": 0.009, "px_limit": null},
+    "dct": {"enabled": true, "norm_limit": 0.008, "px_limit": 3.0},
+    "fft_phase": {"enabled": false, "phase_limit_rad": 3.141592653589793}
+  }
+}
+```
+
+Run with a custom geometry config:
+
+```bash
+python -m wood.scripts.run_matrix \
+  --mat-root /home/interns/Desktop/mat \
+  --iters 150 \
+  --geometry-config configs/my_geometry.json
+```
+
 ## Cases
 
 WOOD uses the same four image/prompt cases as GLASS:
@@ -95,7 +126,8 @@ $HOME/.local/bin/micromamba run -p /home/interns/Desktop/mat/.micromamba/envs/ma
   python -m wood.scripts.smoke_timing \
   --mat-root /home/interns/Desktop/mat \
   --iters 2 \
-  --quick
+  --quick \
+  --geometry-config configs/geometry_default.json
 ```
 
 All-case smoke:
@@ -121,6 +153,7 @@ $HOME/.local/bin/micromamba run -p /home/interns/Desktop/mat/.micromamba/envs/ma
   --mat-root /home/interns/Desktop/mat \
   --iters 150 \
   --output-root outputs/blank_objective_ref \
+  --geometry-config configs/geometry_default.json \
   2>&1 | tee logs/wood_blank_objective_ref_150.log
 ```
 

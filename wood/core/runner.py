@@ -31,8 +31,9 @@ class RunConfig:
     blank_value: float = 0.0
     lr: float = 0.05
     seed: int = 1234
-    init: str = "neutral"
+    init: str | None = None
     unet_backward_scale: float = 8192.0
+    geometry_config_path: str | None = None
     quick: bool = False
     all_cases: bool = False
     mode: str = "smoke_timing"
@@ -120,7 +121,7 @@ def _backend(device):
 def optimize_one(spec: RunSpec, cfg: RunConfig, backend, device, output_dir: Path) -> dict[str, Any]:
     import torch
 
-    from wood.core.geometry.combined_wood import CombinedWoodPerturbation, WoodGeometryConfig
+    from wood.core.geometry.combined_wood import CombinedWoodPerturbation, WoodGeometryConfig, load_wood_geometry_config
     from wood.core.losses import wood_loss
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -137,13 +138,16 @@ def optimize_one(spec: RunSpec, cfg: RunConfig, backend, device, output_dir: Pat
     blank_tensor = pil_to_tensor(blank, device)
 
     reference = backend.prepare_blank_reference(original_tensor, blank_tensor, spec.case.prompt, spec.objective)
+    geometry_config = load_wood_geometry_config(cfg.geometry_config_path) if cfg.geometry_config_path else WoodGeometryConfig()
+    if cfg.init:
+        geometry_config.init = cfg.init
     geometry = CombinedWoodPerturbation(
         original_tensor.shape[-2],
         original_tensor.shape[-1],
         original_tensor.shape[1],
         device,
         seed=spec.seed,
-        config=WoodGeometryConfig(init=cfg.init),
+        config=geometry_config,
     )
     optimizer = torch.optim.Adam(geometry.parameters(), lr=cfg.lr)
     projection = geometry.project_()
@@ -166,6 +170,8 @@ def optimize_one(spec: RunSpec, cfg: RunConfig, backend, device, output_dir: Pat
             "loss": "loss = -Z",
             "Z_definition": "Z = MSE(selected_instruct_objective(perturbed), selected_instruct_objective(blank))",
             "blank_value": cfg.blank_value,
+            "geometry_config_path": cfg.geometry_config_path,
+            "geometry_config_resolved": geometry_config.__dict__.copy(),
             "geometry_limits": geometry.limits_dict(),
             "no_visual_counter_loss": True,
             "model_weights_frozen": True,
