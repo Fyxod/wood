@@ -1,7 +1,7 @@
-"""Compatibility wrapper around summarize_runs for WOOD."""
+"""Build the WOOD report."""
 from __future__ import annotations
 
-from wood.scripts.summarize_runs import main
+from reporting.build_report import main
 
 
 if __name__ == "__main__":

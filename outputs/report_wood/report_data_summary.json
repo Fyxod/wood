@@ -1,0 +1,14 @@
+{
+  "run_id": "20260630_070226",
+  "num_runs": 8,
+  "num_missing": 0,
+  "html": "wood_report.html",
+  "markdown": "wood_report.md",
+  "pdf": "wood_report.pdf",
+  "tables": [
+    "run_matrix_summary.csv",
+    "aggregate_summary_by_objective.csv",
+    "per_run_final_values.csv",
+    "runs_with_highest_metric_values.csv"
+  ]
+}

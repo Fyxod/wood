@@ -1,0 +1,575 @@
+<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>WOOD: InstructPix2Pix White-box Geometry Results</title><style>
+    :root { --ink:#17202a; --muted:#5d6d7e; --line:#d7dde5; --soft:#f6f8fb; --blue:#1f5fbf; --panel:#fbfcfe; }
+    body { margin:0; font-family: Inter, "Segoe UI", Arial, sans-serif; color:var(--ink); background:white; }
+    main { max-width: 1180px; margin: 0 auto; padding: 34px 28px 70px; }
+    h1 { font-size: 34px; margin: 0 0 6px; letter-spacing: -0.02em; }
+    h2 { margin-top: 52px; padding-top: 18px; border-top: 2px solid var(--line); font-size: 26px; }
+    h3 { margin-top: 34px; font-size: 21px; }
+    h4 { margin: 24px 0 12px; font-size: 17px; }
+    p, li { line-height: 1.55; }
+    code, pre { background: var(--soft); border:1px solid var(--line); border-radius: 6px; }
+    code { padding: 1px 5px; }
+    pre { padding: 12px 14px; overflow:auto; }
+    .subtitle { color:var(--muted); font-size: 17px; margin-bottom: 2px; }
+    .author { color:var(--muted); margin-top: 0; }
+    .card { border:1px solid var(--line); border-radius: 12px; padding: 18px; margin: 22px 0; background:white; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+    .small { color:var(--muted); font-size: 13px; }
+    .table-wrap { overflow-x:auto; max-width:100%; margin: 12px 0 22px; }
+    table { border-collapse: collapse; width:100%; margin: 12px 0 22px; font-size: 13px; }
+    th, td { border:1px solid var(--line); padding: 7px 9px; vertical-align: top; }
+    th { background: var(--soft); text-align:left; font-weight: 650; }
+    .strip { width:100%; border:1px solid var(--line); border-radius:10px; display:block; }
+    .graph-section { border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:18px; margin:18px 0 28px; }
+    .graph-section > h4 { margin-top:0; color:#111827; }
+    .graph-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 18px; align-items:start; }
+    .graph { border:1px solid var(--line); border-radius: 10px; padding: 12px; background:white; margin:0; }
+    .graph figcaption { font-weight:650; margin:0 0 10px; color:#243447; }
+    .graph img { width:100%; display:block; }
+    .graph.compact img { max-height:260px; object-fit:contain; }
+    .path { font-family: ui-monospace, Consolas, monospace; font-size: 12px; word-break: break-all; color:#334; }
+    .toc a { color: var(--blue); text-decoration: none; }
+    @media print { main { max-width: none; } .card { break-inside: avoid; } }
+    </style></head><body><main>
+<h1>WOOD: InstructPix2Pix White-box Geometry Results</h1><p class='subtitle'>Combined differentiable perturbation results</p><p class='author'>Parth Katiyar</p>
+<div class='card'><h3>Overview</h3><p>WOOD is an InstructPix2Pix-only white-box geometry optimization experiment. The scalar objective is <code>Z</code>, and the optimized loss is <code>loss = -Z</code>. Model weights are frozen; only differentiable perturbation parameters are optimized.</p></div>
+<h2>1. Method</h2>
+<h3>1.1 Combined perturbation module</h3><p>The perturbation module jointly optimizes five differentiable components. TPS, Delaunay/piecewise affine, rolling shutter, and DCT operate through spatial displacement fields. FFT phase is included as a differentiable frequency-domain perturbation after the spatial warp. All active components are optimized together within each run.</p>
+<h3>1.2 Loss function</h3><pre>loss = -Z</pre><p><code>Z</code> is the MSE distance between the selected InstructPix2Pix internal representation of the perturbed image and a fixed objective reference representation. No visual counter-loss is used.</p>
+<h3>1.3 Internal objectives</h3><ul><li><b>VAE conditioning latent</b>: code objective <code>vae_conditioning</code>.</li><li><b>UNet denoising prediction</b>: code objective <code>unet_prediction</code>.</li></ul>
+<h3>1.4 Run matrix</h3>
+<div class='table-wrap'><table><thead><tr>
+<th>model</th>
+<th>code objective</th>
+<th>objective</th>
+<th>cases</th>
+<th>iterations</th>
+<th>status</th>
+</tr></thead><tbody>
+<tr>
+<td>InstructPix2Pix</td>
+<td>vae_conditioning</td>
+<td>VAE conditioning latent</td>
+<td>4.0000</td>
+<td>150.00</td>
+<td>done</td>
+</tr>
+<tr>
+<td>InstructPix2Pix</td>
+<td>unet_prediction</td>
+<td>UNet denoising prediction</td>
+<td>4.0000</td>
+<td>150.00</td>
+<td>done</td>
+</tr>
+</tbody></table></div>
+<h2>2. Results</h2>
+<h3>2.1 Aggregate summary</h3>
+<div class='table-wrap'><table><thead><tr>
+<th>model</th>
+<th>objective</th>
+<th>runs</th>
+<th>mean final Z</th>
+<th>mean SSIM original</th>
+<th>mean PSNR original</th>
+<th>mean output SSIM</th>
+<th>mean output L2</th>
+<th>mean max disp px</th>
+</tr></thead><tbody>
+<tr>
+<td>InstructPix2Pix</td>
+<td>VAE conditioning latent</td>
+<td>4.0000</td>
+<td>150.47</td>
+<td>0.5675</td>
+<td>10.198</td>
+<td>0.4973</td>
+<td>0.2854</td>
+<td>20.720</td>
+</tr>
+<tr>
+<td>InstructPix2Pix</td>
+<td>UNet denoising prediction</td>
+<td>4.0000</td>
+<td>0.0030</td>
+<td>0.7988</td>
+<td>17.299</td>
+<td>0.6209</td>
+<td>0.1778</td>
+<td>5.8989</td>
+</tr>
+</tbody></table></div>
+<h3>2.2 Per-run final values</h3>
+<div class='table-wrap'><table><thead><tr>
+<th>objective</th>
+<th>face</th>
+<th>prompt</th>
+<th>final Z</th>
+<th>final loss</th>
+<th>best iter</th>
+<th>SSIM original</th>
+<th>PSNR original</th>
+<th>output SSIM</th>
+<th>output L2</th>
+<th>max disp px</th>
+</tr></thead><tbody>
+<tr>
+<td>VAE conditioning latent</td>
+<td>face_002</td>
+<td>add black sunglasses</td>
+<td>148.57</td>
+<td>-148.57</td>
+<td>150.00</td>
+<td>0.6374</td>
+<td>11.016</td>
+<td>0.4627</td>
+<td>0.2880</td>
+<td>14.236</td>
+</tr>
+<tr>
+<td>VAE conditioning latent</td>
+<td>face_002</td>
+<td>add headphones</td>
+<td>149.34</td>
+<td>-149.34</td>
+<td>150.00</td>
+<td>0.6332</td>
+<td>10.981</td>
+<td>0.4175</td>
+<td>0.2996</td>
+<td>17.127</td>
+</tr>
+<tr>
+<td>VAE conditioning latent</td>
+<td>face_005</td>
+<td>add black sunglasses</td>
+<td>151.99</td>
+<td>-151.99</td>
+<td>150.00</td>
+<td>0.5001</td>
+<td>9.3987</td>
+<td>0.6479</td>
+<td>0.2107</td>
+<td>26.987</td>
+</tr>
+<tr>
+<td>VAE conditioning latent</td>
+<td>face_005</td>
+<td>add headphones</td>
+<td>151.98</td>
+<td>-151.98</td>
+<td>150.00</td>
+<td>0.4992</td>
+<td>9.3956</td>
+<td>0.4611</td>
+<td>0.3433</td>
+<td>24.529</td>
+</tr>
+<tr>
+<td>UNet denoising prediction</td>
+<td>face_002</td>
+<td>add black sunglasses</td>
+<td>0.0028</td>
+<td>-0.0028</td>
+<td>149.00</td>
+<td>0.6210</td>
+<td>10.838</td>
+<td>0.4207</td>
+<td>0.2788</td>
+<td>5.6732</td>
+</tr>
+<tr>
+<td>UNet denoising prediction</td>
+<td>face_002</td>
+<td>add headphones</td>
+<td>0.0028</td>
+<td>-0.0028</td>
+<td>149.00</td>
+<td>0.6304</td>
+<td>11.030</td>
+<td>0.3993</td>
+<td>0.3013</td>
+<td>6.5670</td>
+</tr>
+<tr>
+<td>UNet denoising prediction</td>
+<td>face_005</td>
+<td>add black sunglasses</td>
+<td>0.0031</td>
+<td>-0.0031</td>
+<td>150.00</td>
+<td>0.9707</td>
+<td>23.471</td>
+<td>0.8473</td>
+<td>0.0603</td>
+<td>5.7349</td>
+</tr>
+<tr>
+<td>UNet denoising prediction</td>
+<td>face_005</td>
+<td>add headphones</td>
+<td>0.0032</td>
+<td>-0.0032</td>
+<td>149.00</td>
+<td>0.9732</td>
+<td>23.858</td>
+<td>0.8163</td>
+<td>0.0708</td>
+<td>5.6206</td>
+</tr>
+</tbody></table></div>
+<h3>2.3 Runs with highest metric values</h3>
+<div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>objective</th>
+<th>case</th>
+<th>value</th>
+<th>SSIM original</th>
+<th>output SSIM</th>
+<th>max disp px</th>
+</tr></thead><tbody>
+<tr>
+<td>highest final Z</td>
+<td>VAE conditioning latent</td>
+<td>face_005 / add black sunglasses</td>
+<td>151.99</td>
+<td>0.5001</td>
+<td>0.6479</td>
+<td>26.987</td>
+</tr>
+<tr>
+<td>highest output L2</td>
+<td>VAE conditioning latent</td>
+<td>face_005 / add headphones</td>
+<td>0.3433</td>
+<td>0.4992</td>
+<td>0.4611</td>
+<td>24.529</td>
+</tr>
+<tr>
+<td>lowest output SSIM</td>
+<td>VAE conditioning latent</td>
+<td>face_002 / add headphones</td>
+<td>0.4175</td>
+<td>0.6332</td>
+<td>0.4175</td>
+<td>17.127</td>
+</tr>
+<tr>
+<td>highest SSIM to original</td>
+<td>VAE conditioning latent</td>
+<td>face_002 / add black sunglasses</td>
+<td>0.6374</td>
+<td>0.6374</td>
+<td>0.4627</td>
+<td>14.236</td>
+</tr>
+<tr>
+<td>highest final Z</td>
+<td>UNet denoising prediction</td>
+<td>face_005 / add headphones</td>
+<td>0.0032</td>
+<td>0.9732</td>
+<td>0.8163</td>
+<td>5.6206</td>
+</tr>
+<tr>
+<td>highest output L2</td>
+<td>UNet denoising prediction</td>
+<td>face_002 / add headphones</td>
+<td>0.3013</td>
+<td>0.6304</td>
+<td>0.3993</td>
+<td>6.5670</td>
+</tr>
+<tr>
+<td>lowest output SSIM</td>
+<td>UNet denoising prediction</td>
+<td>face_002 / add headphones</td>
+<td>0.3993</td>
+<td>0.6304</td>
+<td>0.3993</td>
+<td>6.5670</td>
+</tr>
+<tr>
+<td>highest SSIM to original</td>
+<td>UNet denoising prediction</td>
+<td>face_005 / add headphones</td>
+<td>0.9732</td>
+<td>0.9732</td>
+<td>0.8163</td>
+<td>5.6206</td>
+</tr>
+</tbody></table></div>
+<h3>VAE conditioning latent</h3>
+<div class='card'><h4>face_002 — add black sunglasses</h4><img class='strip' src='assets/strips/wood_vae_conditioning_face_002_add_black_sunglasses.png' alt='image strip'><h4>Final values</h4><div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>value</th>
+<th>metric</th>
+<th>value</th>
+</tr></thead><tbody>
+<tr>
+<td>final Z</td>
+<td>148.57</td>
+<td>final loss</td>
+<td>-148.57</td>
+</tr>
+<tr>
+<td>SSIM to original</td>
+<td>0.6374</td>
+<td>PSNR to original</td>
+<td>11.016</td>
+</tr>
+<tr>
+<td>output SSIM</td>
+<td>0.4627</td>
+<td>output L2</td>
+<td>0.2880</td>
+</tr>
+<tr>
+<td>max displacement px</td>
+<td>14.236</td>
+<td>p95 displacement px</td>
+<td>7.5261</td>
+</tr>
+</tbody></table></div></div>
+<div class='card'><h4>face_002 — add headphones</h4><img class='strip' src='assets/strips/wood_vae_conditioning_face_002_add_headphones.png' alt='image strip'><h4>Final values</h4><div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>value</th>
+<th>metric</th>
+<th>value</th>
+</tr></thead><tbody>
+<tr>
+<td>final Z</td>
+<td>149.34</td>
+<td>final loss</td>
+<td>-149.34</td>
+</tr>
+<tr>
+<td>SSIM to original</td>
+<td>0.6332</td>
+<td>PSNR to original</td>
+<td>10.981</td>
+</tr>
+<tr>
+<td>output SSIM</td>
+<td>0.4175</td>
+<td>output L2</td>
+<td>0.2996</td>
+</tr>
+<tr>
+<td>max displacement px</td>
+<td>17.127</td>
+<td>p95 displacement px</td>
+<td>9.4660</td>
+</tr>
+</tbody></table></div></div>
+<div class='card'><h4>face_005 — add black sunglasses</h4><img class='strip' src='assets/strips/wood_vae_conditioning_face_005_add_black_sunglasses.png' alt='image strip'><h4>Final values</h4><div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>value</th>
+<th>metric</th>
+<th>value</th>
+</tr></thead><tbody>
+<tr>
+<td>final Z</td>
+<td>151.99</td>
+<td>final loss</td>
+<td>-151.99</td>
+</tr>
+<tr>
+<td>SSIM to original</td>
+<td>0.5001</td>
+<td>PSNR to original</td>
+<td>9.3987</td>
+</tr>
+<tr>
+<td>output SSIM</td>
+<td>0.6479</td>
+<td>output L2</td>
+<td>0.2107</td>
+</tr>
+<tr>
+<td>max displacement px</td>
+<td>26.987</td>
+<td>p95 displacement px</td>
+<td>17.043</td>
+</tr>
+</tbody></table></div></div>
+<div class='card'><h4>face_005 — add headphones</h4><img class='strip' src='assets/strips/wood_vae_conditioning_face_005_add_headphones.png' alt='image strip'><h4>Final values</h4><div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>value</th>
+<th>metric</th>
+<th>value</th>
+</tr></thead><tbody>
+<tr>
+<td>final Z</td>
+<td>151.98</td>
+<td>final loss</td>
+<td>-151.98</td>
+</tr>
+<tr>
+<td>SSIM to original</td>
+<td>0.4992</td>
+<td>PSNR to original</td>
+<td>9.3956</td>
+</tr>
+<tr>
+<td>output SSIM</td>
+<td>0.4611</td>
+<td>output L2</td>
+<td>0.3433</td>
+</tr>
+<tr>
+<td>max displacement px</td>
+<td>24.529</td>
+<td>p95 displacement px</td>
+<td>12.280</td>
+</tr>
+</tbody></table></div></div>
+<h3>UNet denoising prediction</h3>
+<div class='card'><h4>face_002 — add black sunglasses</h4><img class='strip' src='assets/strips/wood_unet_prediction_face_002_add_black_sunglasses.png' alt='image strip'><h4>Final values</h4><div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>value</th>
+<th>metric</th>
+<th>value</th>
+</tr></thead><tbody>
+<tr>
+<td>final Z</td>
+<td>0.0028</td>
+<td>final loss</td>
+<td>-0.0028</td>
+</tr>
+<tr>
+<td>SSIM to original</td>
+<td>0.6210</td>
+<td>PSNR to original</td>
+<td>10.838</td>
+</tr>
+<tr>
+<td>output SSIM</td>
+<td>0.4207</td>
+<td>output L2</td>
+<td>0.2788</td>
+</tr>
+<tr>
+<td>max displacement px</td>
+<td>5.6732</td>
+<td>p95 displacement px</td>
+<td>3.4193</td>
+</tr>
+</tbody></table></div></div>
+<div class='card'><h4>face_002 — add headphones</h4><img class='strip' src='assets/strips/wood_unet_prediction_face_002_add_headphones.png' alt='image strip'><h4>Final values</h4><div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>value</th>
+<th>metric</th>
+<th>value</th>
+</tr></thead><tbody>
+<tr>
+<td>final Z</td>
+<td>0.0028</td>
+<td>final loss</td>
+<td>-0.0028</td>
+</tr>
+<tr>
+<td>SSIM to original</td>
+<td>0.6304</td>
+<td>PSNR to original</td>
+<td>11.030</td>
+</tr>
+<tr>
+<td>output SSIM</td>
+<td>0.3993</td>
+<td>output L2</td>
+<td>0.3013</td>
+</tr>
+<tr>
+<td>max displacement px</td>
+<td>6.5670</td>
+<td>p95 displacement px</td>
+<td>5.0125</td>
+</tr>
+</tbody></table></div></div>
+<div class='card'><h4>face_005 — add black sunglasses</h4><img class='strip' src='assets/strips/wood_unet_prediction_face_005_add_black_sunglasses.png' alt='image strip'><h4>Final values</h4><div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>value</th>
+<th>metric</th>
+<th>value</th>
+</tr></thead><tbody>
+<tr>
+<td>final Z</td>
+<td>0.0031</td>
+<td>final loss</td>
+<td>-0.0031</td>
+</tr>
+<tr>
+<td>SSIM to original</td>
+<td>0.9707</td>
+<td>PSNR to original</td>
+<td>23.471</td>
+</tr>
+<tr>
+<td>output SSIM</td>
+<td>0.8473</td>
+<td>output L2</td>
+<td>0.0603</td>
+</tr>
+<tr>
+<td>max displacement px</td>
+<td>5.7349</td>
+<td>p95 displacement px</td>
+<td>3.6222</td>
+</tr>
+</tbody></table></div></div>
+<div class='card'><h4>face_005 — add headphones</h4><img class='strip' src='assets/strips/wood_unet_prediction_face_005_add_headphones.png' alt='image strip'><h4>Final values</h4><div class='table-wrap'><table><thead><tr>
+<th>metric</th>
+<th>value</th>
+<th>metric</th>
+<th>value</th>
+</tr></thead><tbody>
+<tr>
+<td>final Z</td>
+<td>0.0032</td>
+<td>final loss</td>
+<td>-0.0032</td>
+</tr>
+<tr>
+<td>SSIM to original</td>
+<td>0.9732</td>
+<td>PSNR to original</td>
+<td>23.858</td>
+</tr>
+<tr>
+<td>output SSIM</td>
+<td>0.8163</td>
+<td>output L2</td>
+<td>0.0708</td>
+</tr>
+<tr>
+<td>max displacement px</td>
+<td>5.6206</td>
+<td>p95 displacement px</td>
+<td>3.6916</td>
+</tr>
+</tbody></table></div></div>
+<h2>3. Cross-run Graphs</h2>
+<section class='graph-section'><h4>VAE conditioning latent</h4><div class='graph-grid'>
+<figure class='graph'><figcaption>VAE conditioning latent: Z vs iteration</figcaption><a href='assets/graphs/vae_conditioning_latent_Z.png'><img src='assets/graphs/vae_conditioning_latent_Z.png' alt='VAE conditioning latent: Z vs iteration'></a></figure>
+<figure class='graph'><figcaption>VAE conditioning latent: loss vs iteration</figcaption><a href='assets/graphs/vae_conditioning_latent_loss.png'><img src='assets/graphs/vae_conditioning_latent_loss.png' alt='VAE conditioning latent: loss vs iteration'></a></figure>
+<figure class='graph compact'><figcaption>SSIM and PSNR to original</figcaption><a href='assets/graphs/vae_conditioning_latent_ssim_psnr.png'><img src='assets/graphs/vae_conditioning_latent_ssim_psnr.png' alt='SSIM and PSNR to original'></a></figure>
+<figure class='graph'><figcaption>Geometry component contribution</figcaption><a href='assets/graphs/vae_conditioning_latent_components_raw.png'><img src='assets/graphs/vae_conditioning_latent_components_raw.png' alt='Geometry component contribution'></a></figure>
+<figure class='graph'><figcaption>Geometry component contribution normalized</figcaption><a href='assets/graphs/vae_conditioning_latent_components_normalized.png'><img src='assets/graphs/vae_conditioning_latent_components_normalized.png' alt='Geometry component contribution normalized'></a></figure>
+</div></section>
+<section class='graph-section'><h4>UNet denoising prediction</h4><div class='graph-grid'>
+<figure class='graph'><figcaption>UNet denoising prediction: Z vs iteration</figcaption><a href='assets/graphs/unet_denoising_prediction_Z.png'><img src='assets/graphs/unet_denoising_prediction_Z.png' alt='UNet denoising prediction: Z vs iteration'></a></figure>
+<figure class='graph'><figcaption>UNet denoising prediction: loss vs iteration</figcaption><a href='assets/graphs/unet_denoising_prediction_loss.png'><img src='assets/graphs/unet_denoising_prediction_loss.png' alt='UNet denoising prediction: loss vs iteration'></a></figure>
+<figure class='graph compact'><figcaption>SSIM and PSNR to original</figcaption><a href='assets/graphs/unet_denoising_prediction_ssim_psnr.png'><img src='assets/graphs/unet_denoising_prediction_ssim_psnr.png' alt='SSIM and PSNR to original'></a></figure>
+<figure class='graph'><figcaption>Geometry component contribution</figcaption><a href='assets/graphs/unet_denoising_prediction_components_raw.png'><img src='assets/graphs/unet_denoising_prediction_components_raw.png' alt='Geometry component contribution'></a></figure>
+<figure class='graph'><figcaption>Geometry component contribution normalized</figcaption><a href='assets/graphs/unet_denoising_prediction_components_normalized.png'><img src='assets/graphs/unet_denoising_prediction_components_normalized.png' alt='Geometry component contribution normalized'></a></figure>
+</div></section>
+<section class='graph-section'><h4>Cross-run comparisons</h4><div class='graph-grid'>
+<figure class='graph'><figcaption>Output disruption comparison</figcaption><a href='assets/graphs/output_disruption_comparison.png'><img src='assets/graphs/output_disruption_comparison.png' alt='Output disruption comparison'></a></figure>
+<figure class='graph'><figcaption>Displacement statistics</figcaption><a href='assets/graphs/displacement_statistics.png'><img src='assets/graphs/displacement_statistics.png' alt='Displacement statistics'></a></figure>
+<figure class='graph'><figcaption>Final Z vs final SSIM</figcaption><a href='assets/graphs/final_Z_vs_final_SSIM.png'><img src='assets/graphs/final_Z_vs_final_SSIM.png' alt='Final Z vs final SSIM'></a></figure>
+</div></section>
+<h2>4. Notes</h2><ul><li>Completed runs collected: 8.</li><li>Run id: 20260630_070226.</li><li>The report uses the latest completed WOOD run available when generated.</li></ul>
+</main></body></html>
