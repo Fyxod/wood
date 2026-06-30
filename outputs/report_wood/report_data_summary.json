@@ -9,5 +9,17 @@
     "run_matrix_summary.csv",
     "aggregate_summary_by_objective.csv",
     "per_run_final_values.csv"
-  ]
+  ],
+  "compress_report": true,
+  "quality": {
+    "image_size": [
+      420,
+      420
+    ],
+    "strip_format": "jpg",
+    "strip_quality": 82,
+    "graph_dpi": 120,
+    "compress_pdf_images": true,
+    "pdf_image_quality": 68
+  }
 }

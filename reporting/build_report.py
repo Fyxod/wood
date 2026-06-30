@@ -29,10 +29,28 @@ OUTPUT_BASENAME = "wood_report"
 # CLI with: --run-folder 20260630_070226_blank_objective_ref_all_sequential
 RUN_FOLDER_NAME = ""
 
-REPORT_IMAGE_SIZE = (420, 420)
-REPORT_IMAGE_JPEG_QUALITY = 82
-PDF_IMAGE_JPEG_QUALITY = 68
-GRAPH_DPI = 120
+# Default report quality. Keep this True for the compact report currently used
+# in the repo. Set to False, or pass --no-compress-report, to generate a larger
+# high-quality report.
+COMPRESS_REPORT = True
+
+COMPRESSED_QUALITY = {
+    "image_size": (420, 420),
+    "strip_format": "jpg",
+    "strip_quality": 82,
+    "graph_dpi": 120,
+    "compress_pdf_images": True,
+    "pdf_image_quality": 68,
+}
+
+HIGH_QUALITY = {
+    "image_size": (512, 512),
+    "strip_format": "png",
+    "strip_quality": None,
+    "graph_dpi": 150,
+    "compress_pdf_images": False,
+    "pdf_image_quality": 95,
+}
 
 OBJECTIVE_NAMES = {
     "vae_conditioning": "VAE conditioning latent",
@@ -59,7 +77,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--run-root", default=None, help="Specific run root path. Overrides --run-folder.")
     parser.add_argument("--output-root", default="outputs/report_wood")
     parser.add_argument("--no-pdf", action="store_true")
+    quality = parser.add_mutually_exclusive_group()
+    quality.add_argument("--compress-report", dest="compress_report", action="store_true", help="Generate compact report assets and a small PDF.")
+    quality.add_argument("--no-compress-report", dest="compress_report", action="store_false", help="Generate high-quality report assets and a larger PDF.")
+    parser.set_defaults(compress_report=COMPRESS_REPORT)
     return parser.parse_args()
+
+
+def quality_settings(compress_report: bool) -> dict[str, Any]:
+    return dict(COMPRESSED_QUALITY if compress_report else HIGH_QUALITY)
 
 
 def slug(value: str) -> str:
@@ -359,7 +385,7 @@ def copy_or_placeholder(path: Path, size: tuple[int, int], label: str) -> Image.
     return img
 
 
-def make_strip(run: dict[str, Any], output_root: Path) -> str:
+def make_strip(run: dict[str, Any], output_root: Path, quality: dict[str, Any]) -> str:
     strips_dir = output_root / "assets" / "strips"
     strips_dir.mkdir(parents=True, exist_ok=True)
     cells = [
@@ -370,7 +396,7 @@ def make_strip(run: dict[str, Any], output_root: Path) -> str:
         ("Perturbed Edit", run["images"]["perturbed_edited"]),
     ]
     loaded = []
-    base_size = REPORT_IMAGE_SIZE
+    base_size = tuple(quality["image_size"])
     for label, path in cells:
         img = copy_or_placeholder(path, base_size, label).resize(base_size, Image.Resampling.LANCZOS)
         loaded.append((label, img))
@@ -381,15 +407,19 @@ def make_strip(run: dict[str, Any], output_root: Path) -> str:
         x = idx * base_size[0]
         canvas.paste(img, (x, 0))
         draw.text((x + 8, base_size[1] + 9), label, fill="black")
-    name = f"wood_{run['objective']}_{run['case_slug']}.jpg"
+    strip_format = str(quality["strip_format"]).lower()
+    name = f"wood_{run['objective']}_{run['case_slug']}.{strip_format}"
     path = strips_dir / name
-    canvas.save(path, quality=REPORT_IMAGE_JPEG_QUALITY, optimize=True)
+    if strip_format in {"jpg", "jpeg"}:
+        canvas.save(path, quality=int(quality["strip_quality"]), optimize=True)
+    else:
+        canvas.save(path, optimize=True)
     return path.relative_to(output_root).as_posix()
 
 
-def plot_lines(path: Path, title: str, ylabel: str, runs: list[dict[str, Any]], key: str) -> None:
+def plot_lines(path: Path, title: str, ylabel: str, runs: list[dict[str, Any]], key: str, dpi: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    plt.figure(figsize=(10.0, 5.3), dpi=GRAPH_DPI)
+    plt.figure(figsize=(10.0, 5.3), dpi=dpi)
     for run in runs:
         xs, ys = [], []
         for row in run["history_rows"]:
@@ -411,9 +441,9 @@ def plot_lines(path: Path, title: str, ylabel: str, runs: list[dict[str, Any]], 
     plt.close()
 
 
-def plot_psnr_ssim(path: Path, title: str, runs: list[dict[str, Any]]) -> None:
+def plot_psnr_ssim(path: Path, title: str, runs: list[dict[str, Any]], dpi: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.2), dpi=GRAPH_DPI, sharex=True)
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.2), dpi=dpi, sharex=True)
     for ax, key, label in [
         (axes[0], "ssim_to_original", "SSIM to original"),
         (axes[1], "psnr_to_original", "PSNR to original"),
@@ -439,7 +469,7 @@ def plot_psnr_ssim(path: Path, title: str, runs: list[dict[str, Any]]) -> None:
     plt.close(fig)
 
 
-def plot_components(path: Path, title: str, runs: list[dict[str, Any]], normalized: bool = False) -> None:
+def plot_components(path: Path, title: str, runs: list[dict[str, Any]], normalized: bool = False, dpi: int = 120) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     metrics = [
         ("tps_mean_disp", "TPS"),
@@ -450,7 +480,7 @@ def plot_components(path: Path, title: str, runs: list[dict[str, Any]], normaliz
         ("fft_spatial_delta_mse", "FFT delta MSE"),
     ]
     max_iter = max((len(run["history_rows"]) for run in runs), default=0)
-    plt.figure(figsize=(10.0, 5.3), dpi=GRAPH_DPI)
+    plt.figure(figsize=(10.0, 5.3), dpi=dpi)
     for key, label in metrics:
         xs, ys = [], []
         for idx in range(max_iter):
@@ -479,12 +509,12 @@ def plot_components(path: Path, title: str, runs: list[dict[str, Any]], normaliz
     plt.close()
 
 
-def final_bar(path: Path, title: str, rows: list[dict[str, Any]], metrics: list[str], labels: list[str]) -> None:
+def final_bar(path: Path, title: str, rows: list[dict[str, Any]], metrics: list[str], labels: list[str], dpi: int = 150) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     xlabels = [f"{r['objective']}\n{r['face_id']}\n{r['prompt'].replace('add ', '')}" for r in rows]
     x = list(range(len(rows)))
     width = 0.8 / len(metrics)
-    plt.figure(figsize=(max(11, len(rows) * 0.7), 5.5), dpi=GRAPH_DPI)
+    plt.figure(figsize=(max(11, len(rows) * 0.7), 5.5), dpi=dpi)
     for idx, (metric, label) in enumerate(zip(metrics, labels)):
         values = [to_float(r.get(metric)) or 0.0 for r in rows]
         offsets = [v + (idx - (len(metrics) - 1) / 2) * width for v in x]
@@ -498,9 +528,9 @@ def final_bar(path: Path, title: str, rows: list[dict[str, Any]], metrics: list[
     plt.close()
 
 
-def scatter_z_ssim(path: Path, runs: list[dict[str, Any]]) -> None:
+def scatter_z_ssim(path: Path, runs: list[dict[str, Any]], dpi: int = 150) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    plt.figure(figsize=(8.2, 5.3), dpi=GRAPH_DPI)
+    plt.figure(figsize=(8.2, 5.3), dpi=dpi)
     for run in runs:
         x = to_float(run["final"].get("final_ssim_to_original"))
         y = to_float(run["final"].get("final_Z"))
@@ -517,9 +547,10 @@ def scatter_z_ssim(path: Path, runs: list[dict[str, Any]]) -> None:
     plt.close()
 
 
-def make_graphs(runs: list[dict[str, Any]], output_root: Path) -> dict[str, Any]:
+def make_graphs(runs: list[dict[str, Any]], output_root: Path, quality: dict[str, Any]) -> dict[str, Any]:
     graphs_dir = output_root / "assets" / "graphs"
     graphs_dir.mkdir(parents=True, exist_ok=True)
+    dpi = int(quality["graph_dpi"])
     by_obj: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for run in runs:
         by_obj[run["objective"]].append(run)
@@ -533,16 +564,16 @@ def make_graphs(runs: list[dict[str, Any]], output_root: Path) -> dict[str, Any]
             ("loss", f"{name}: loss vs iteration", "loss", "loss"),
         ]:
             path = graphs_dir / f"{base}_{suffix}.png"
-            plot_lines(path, title, ylabel, group, key)
+            plot_lines(path, title, ylabel, group, key, dpi=dpi)
             section["graphs"].append({"title": title, "path": path.relative_to(output_root).as_posix()})
         path = graphs_dir / f"{base}_ssim_psnr.png"
-        plot_psnr_ssim(path, f"{name}: SSIM and PSNR to original", group)
+        plot_psnr_ssim(path, f"{name}: SSIM and PSNR to original", group, dpi=dpi)
         section["graphs"].append({"title": "SSIM and PSNR to original", "path": path.relative_to(output_root).as_posix(), "compact": True})
         path = graphs_dir / f"{base}_components_raw.png"
-        plot_components(path, f"{name}: component diagnostics", group, normalized=False)
+        plot_components(path, f"{name}: component diagnostics", group, normalized=False, dpi=dpi)
         section["graphs"].append({"title": "Geometry component contribution", "path": path.relative_to(output_root).as_posix()})
         path = graphs_dir / f"{base}_components_normalized.png"
-        plot_components(path, f"{name}: normalized component diagnostics", group, normalized=True)
+        plot_components(path, f"{name}: normalized component diagnostics", group, normalized=True, dpi=dpi)
         section["graphs"].append({"title": "Geometry component contribution normalized", "path": path.relative_to(output_root).as_posix()})
         sections.append(section)
 
@@ -728,7 +759,7 @@ def build_markdown(data: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def make_pdf(data: dict[str, Any], output_root: Path, pdf_path: Path) -> None:
+def make_pdf(data: dict[str, Any], output_root: Path, pdf_path: Path, quality: dict[str, Any]) -> None:
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import letter
     from reportlab.lib.styles import getSampleStyleSheet
@@ -765,18 +796,19 @@ def make_pdf(data: dict[str, Any], output_root: Path, pdf_path: Path) -> None:
         story.append(table)
         story.append(Spacer(1, 0.12 * inch))
 
-    pdf_image_dir = output_root / "assets" / "pdf_images"
-    pdf_image_dir.mkdir(parents=True, exist_ok=True)
-
     def compressed_pdf_image(rel_path: str, max_px: tuple[int, int]) -> Path | None:
         path = output_root / rel_path
         if not path.exists():
             return None
+        if not quality["compress_pdf_images"]:
+            return path
+        pdf_image_dir = output_root / "assets" / "pdf_images"
+        pdf_image_dir.mkdir(parents=True, exist_ok=True)
         out = pdf_image_dir / f"{slug(rel_path)}.jpg"
         with Image.open(path) as img_raw:
             img = img_raw.convert("RGB")
             img.thumbnail(max_px, Image.Resampling.LANCZOS)
-            img.save(out, quality=PDF_IMAGE_JPEG_QUALITY, optimize=True)
+            img.save(out, quality=int(quality["pdf_image_quality"]), optimize=True)
         return out
 
     def add_image(rel_path: str, max_w: float = 7.2 * inch, max_h: float = 4.5 * inch) -> None:
@@ -819,6 +851,7 @@ def main() -> None:
     args = parse_args()
     repo_root = Path.cwd()
     results_root = Path(args.results_root)
+    quality = quality_settings(bool(args.compress_report))
     run_root = resolve_run_root(results_root, args.run_root, args.run_folder)
     output_root = Path(args.output_root)
     if output_root.exists():
@@ -826,8 +859,8 @@ def main() -> None:
     (output_root / "assets" / "tables").mkdir(parents=True, exist_ok=True)
     runs, missing = collect_runs(run_root)
     for run in runs:
-        run["strip_path"] = make_strip(run, output_root)
-    graphs = make_graphs(runs, output_root)
+        run["strip_path"] = make_strip(run, output_root, quality)
+    graphs = make_graphs(runs, output_root, quality)
     data = {
         "title": TITLE,
         "subtitle": SUBTITLE,
@@ -840,6 +873,8 @@ def main() -> None:
         "aggregate_rows": aggregate_rows(runs),
         "per_run_rows": per_run_rows(runs),
         "graph_sections": graphs["sections"],
+        "compress_report": bool(args.compress_report),
+        "quality": quality,
     }
     write_csv(output_root / "assets" / "tables" / "run_matrix_summary.csv", data["matrix_rows"])
     write_csv(output_root / "assets" / "tables" / "aggregate_summary_by_objective.csv", data["aggregate_rows"])
@@ -856,6 +891,8 @@ def main() -> None:
         "markdown": f"{OUTPUT_BASENAME}.md",
         "pdf": f"{OUTPUT_BASENAME}.pdf",
         "tables": ["run_matrix_summary.csv", "aggregate_summary_by_objective.csv", "per_run_final_values.csv"],
+        "compress_report": bool(args.compress_report),
+        "quality": quality,
     }
     (output_root / "report_data_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     html_text = build_html(data)
@@ -863,8 +900,9 @@ def main() -> None:
     (output_root / f"{OUTPUT_BASENAME}.html").write_text(html_text, encoding="utf-8")
     (output_root / f"{OUTPUT_BASENAME}.md").write_text(md_text, encoding="utf-8")
     if not args.no_pdf:
-        make_pdf(data, output_root, output_root / f"{OUTPUT_BASENAME}.pdf")
+        make_pdf(data, output_root, output_root / f"{OUTPUT_BASENAME}.pdf", quality)
     print(f"[wood-report] run root: {run_root}")
+    print(f"[wood-report] compress report: {bool(args.compress_report)}")
     print(f"[wood-report] wrote: {output_root / f'{OUTPUT_BASENAME}.html'}")
     print(f"[wood-report] wrote: {output_root / f'{OUTPUT_BASENAME}.md'}")
     if not args.no_pdf:
