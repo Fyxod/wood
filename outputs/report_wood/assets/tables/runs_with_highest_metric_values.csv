@@ -1,9 +1,0 @@
-metric,objective,case,value,ssim_to_original,output_ssim,max_disp_px
-highest final Z,VAE conditioning latent,face_005 / add black sunglasses,151.9931640625,0.5001310110092163,0.6479238867759705,26.987199783325195
-highest output L2,VAE conditioning latent,face_005 / add headphones,0.3433313963755965,0.49921831488609314,0.46113502979278564,24.529254913330078
-lowest output SSIM,VAE conditioning latent,face_002 / add headphones,0.41749247908592224,0.6331959366798401,0.41749247908592224,17.127187728881836
-highest SSIM to original,VAE conditioning latent,face_002 / add black sunglasses,0.6373776793479919,0.6373776793479919,0.4627291262149811,14.235944747924805
-highest final Z,UNet denoising prediction,face_005 / add headphones,0.003157779574394226,0.9731665253639221,0.816277027130127,5.62063455581665
-highest output L2,UNet denoising prediction,face_002 / add headphones,0.301291726158828,0.6303902268409729,0.39925649762153625,6.5670318603515625
-lowest output SSIM,UNet denoising prediction,face_002 / add headphones,0.39925649762153625,0.6303902268409729,0.39925649762153625,6.5670318603515625
-highest SSIM to original,UNet denoising prediction,face_005 / add headphones,0.9731665253639221,0.9731665253639221,0.816277027130127,5.62063455581665

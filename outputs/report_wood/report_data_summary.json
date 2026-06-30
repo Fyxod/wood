@@ -8,7 +8,6 @@
   "tables": [
     "run_matrix_summary.csv",
     "aggregate_summary_by_objective.csv",
-    "per_run_final_values.csv",
-    "runs_with_highest_metric_values.csv"
+    "per_run_final_values.csv"
   ]
 }

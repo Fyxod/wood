@@ -24,6 +24,16 @@ SUBTITLE = "Combined differentiable perturbation results"
 AUTHOR = "Parth Katiyar"
 OUTPUT_BASENAME = "wood_report"
 
+# Optional default run folder. Leave empty to auto-select the latest completed
+# folder under outputs/blank_objective_ref. You can also override this from the
+# CLI with: --run-folder 20260630_070226_blank_objective_ref_all_sequential
+RUN_FOLDER_NAME = ""
+
+REPORT_IMAGE_SIZE = (420, 420)
+REPORT_IMAGE_JPEG_QUALITY = 82
+PDF_IMAGE_JPEG_QUALITY = 68
+GRAPH_DPI = 120
+
 OBJECTIVE_NAMES = {
     "vae_conditioning": "VAE conditioning latent",
     "unet_prediction": "UNet denoising prediction",
@@ -45,7 +55,8 @@ CASE_ORDER = {
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build the WOOD report from existing outputs.")
     parser.add_argument("--results-root", default="outputs/blank_objective_ref")
-    parser.add_argument("--run-root", default=None, help="Specific timestamped run root. Defaults to latest completed run.")
+    parser.add_argument("--run-folder", default=RUN_FOLDER_NAME, help="Folder name under results-root. Falls back to latest if missing.")
+    parser.add_argument("--run-root", default=None, help="Specific run root path. Overrides --run-folder.")
     parser.add_argument("--output-root", default="outputs/report_wood")
     parser.add_argument("--no-pdf", action="store_true")
     return parser.parse_args()
@@ -122,6 +133,21 @@ def find_latest_run_root(results_root: Path) -> Path:
     return sorted(candidates, key=lambda p: p.name)[-1]
 
 
+def resolve_run_root(results_root: Path, run_root_arg: str | None, run_folder_name: str | None) -> Path:
+    if run_root_arg:
+        path = Path(run_root_arg)
+        if path.exists():
+            return path
+        print(f"[wood-report] requested run root not found, falling back to latest: {path}")
+        return find_latest_run_root(results_root)
+    if run_folder_name:
+        path = results_root / run_folder_name
+        if path.exists():
+            return path
+        print(f"[wood-report] requested run folder not found, falling back to latest: {path}")
+    return find_latest_run_root(results_root)
+
+
 def _history_final(rows: list[dict[str, str]]) -> dict[str, Any]:
     if not rows:
         return {}
@@ -153,7 +179,6 @@ def collect_runs(run_root: Path) -> tuple[list[dict[str, Any]], list[dict[str, s
             "perturbed": run_dir / "perturbed.png",
             "clean_edited": run_dir / "clean_edited.png",
             "perturbed_edited": run_dir / "perturbed_edited.png",
-            "flow": run_dir / "combined_flow.png",
             "comparison_sheet": run_dir / "comparison_sheet.png",
         }
         for label, path in images.items():
@@ -343,10 +368,9 @@ def make_strip(run: dict[str, Any], output_root: Path) -> str:
         ("Perturbed", run["images"]["perturbed"]),
         ("Clean Edit", run["images"]["clean_edited"]),
         ("Perturbed Edit", run["images"]["perturbed_edited"]),
-        ("Combined Flow", run["images"]["flow"]),
     ]
     loaded = []
-    base_size = (512, 512)
+    base_size = REPORT_IMAGE_SIZE
     for label, path in cells:
         img = copy_or_placeholder(path, base_size, label).resize(base_size, Image.Resampling.LANCZOS)
         loaded.append((label, img))
@@ -357,15 +381,15 @@ def make_strip(run: dict[str, Any], output_root: Path) -> str:
         x = idx * base_size[0]
         canvas.paste(img, (x, 0))
         draw.text((x + 8, base_size[1] + 9), label, fill="black")
-    name = f"wood_{run['objective']}_{run['case_slug']}.png"
+    name = f"wood_{run['objective']}_{run['case_slug']}.jpg"
     path = strips_dir / name
-    canvas.save(path, quality=92)
+    canvas.save(path, quality=REPORT_IMAGE_JPEG_QUALITY, optimize=True)
     return path.relative_to(output_root).as_posix()
 
 
 def plot_lines(path: Path, title: str, ylabel: str, runs: list[dict[str, Any]], key: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    plt.figure(figsize=(10.5, 5.7), dpi=150)
+    plt.figure(figsize=(10.0, 5.3), dpi=GRAPH_DPI)
     for run in runs:
         xs, ys = [], []
         for row in run["history_rows"]:
@@ -389,7 +413,7 @@ def plot_lines(path: Path, title: str, ylabel: str, runs: list[dict[str, Any]], 
 
 def plot_psnr_ssim(path: Path, title: str, runs: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.6), dpi=150, sharex=True)
+    fig, axes = plt.subplots(1, 2, figsize=(11.0, 4.2), dpi=GRAPH_DPI, sharex=True)
     for ax, key, label in [
         (axes[0], "ssim_to_original", "SSIM to original"),
         (axes[1], "psnr_to_original", "PSNR to original"),
@@ -426,7 +450,7 @@ def plot_components(path: Path, title: str, runs: list[dict[str, Any]], normaliz
         ("fft_spatial_delta_mse", "FFT delta MSE"),
     ]
     max_iter = max((len(run["history_rows"]) for run in runs), default=0)
-    plt.figure(figsize=(10.5, 5.7), dpi=150)
+    plt.figure(figsize=(10.0, 5.3), dpi=GRAPH_DPI)
     for key, label in metrics:
         xs, ys = [], []
         for idx in range(max_iter):
@@ -460,7 +484,7 @@ def final_bar(path: Path, title: str, rows: list[dict[str, Any]], metrics: list[
     xlabels = [f"{r['objective']}\n{r['face_id']}\n{r['prompt'].replace('add ', '')}" for r in rows]
     x = list(range(len(rows)))
     width = 0.8 / len(metrics)
-    plt.figure(figsize=(max(12, len(rows) * 0.75), 6.0), dpi=150)
+    plt.figure(figsize=(max(11, len(rows) * 0.7), 5.5), dpi=GRAPH_DPI)
     for idx, (metric, label) in enumerate(zip(metrics, labels)):
         values = [to_float(r.get(metric)) or 0.0 for r in rows]
         offsets = [v + (idx - (len(metrics) - 1) / 2) * width for v in x]
@@ -476,7 +500,7 @@ def final_bar(path: Path, title: str, rows: list[dict[str, Any]], metrics: list[
 
 def scatter_z_ssim(path: Path, runs: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    plt.figure(figsize=(8.5, 5.8), dpi=150)
+    plt.figure(figsize=(8.2, 5.3), dpi=GRAPH_DPI)
     for run in runs:
         x = to_float(run["final"].get("final_ssim_to_original"))
         y = to_float(run["final"].get("final_Z"))
@@ -522,24 +546,6 @@ def make_graphs(runs: list[dict[str, Any]], output_root: Path) -> dict[str, Any]
         section["graphs"].append({"title": "Geometry component contribution normalized", "path": path.relative_to(output_root).as_posix()})
         sections.append(section)
 
-    final_rows = per_run_rows(runs)
-    cross = {"title": "Cross-run comparisons", "graphs": []}
-    path = graphs_dir / "output_disruption_comparison.png"
-    rows_for_bar = []
-    for row in final_rows:
-        cloned = dict(row)
-        ssim = to_float(row.get("output_ssim"))
-        cloned["one_minus_output_ssim"] = None if ssim is None else 1.0 - ssim
-        rows_for_bar.append(cloned)
-    final_bar(path, "Output disruption comparison", rows_for_bar, ["output_l2", "one_minus_output_ssim"], ["output L2", "1 - output SSIM"])
-    cross["graphs"].append({"title": "Output disruption comparison", "path": path.relative_to(output_root).as_posix()})
-    path = graphs_dir / "displacement_statistics.png"
-    final_bar(path, "Displacement statistics", final_rows, ["max_disp_px", "p95_disp_px"], ["max disp px", "p95 disp px"])
-    cross["graphs"].append({"title": "Displacement statistics", "path": path.relative_to(output_root).as_posix()})
-    path = graphs_dir / "final_Z_vs_final_SSIM.png"
-    scatter_z_ssim(path, runs)
-    cross["graphs"].append({"title": "Final Z vs final SSIM", "path": path.relative_to(output_root).as_posix()})
-    sections.append(cross)
     return {"sections": sections}
 
 
@@ -598,7 +604,6 @@ def build_html(data: dict[str, Any]) -> str:
     matrix_cols = [("model", "model"), ("code_objective", "code objective"), ("report_objective_name", "objective"), ("num_cases", "cases"), ("iterations", "iterations"), ("status", "status")]
     aggregate_cols = [("model", "model"), ("report_objective_name", "objective"), ("num_runs", "runs"), ("mean_final_Z", "mean final Z"), ("mean_final_ssim_to_original", "mean SSIM original"), ("mean_final_psnr_to_original", "mean PSNR original"), ("mean_final_output_ssim", "mean output SSIM"), ("mean_final_output_l2", "mean output L2"), ("mean_combined_max_disp_px", "mean max disp px")]
     per_cols = [("objective", "objective"), ("face_id", "face"), ("prompt", "prompt"), ("final_Z", "final Z"), ("final_loss", "final loss"), ("best_iter_by_Z", "best iter"), ("ssim_to_original", "SSIM original"), ("psnr_to_original", "PSNR original"), ("output_ssim", "output SSIM"), ("output_l2", "output L2"), ("max_disp_px", "max disp px")]
-    best_cols = [("metric", "metric"), ("objective", "objective"), ("case", "case"), ("value", "value"), ("ssim_to_original", "SSIM original"), ("output_ssim", "output SSIM"), ("max_disp_px", "max disp px")]
     css = """
     :root { --ink:#17202a; --muted:#5d6d7e; --line:#d7dde5; --soft:#f6f8fb; --blue:#1f5fbf; --panel:#fbfcfe; }
     body { margin:0; font-family: Inter, "Segoe UI", Arial, sans-serif; color:var(--ink); background:white; }
@@ -647,8 +652,6 @@ def build_html(data: dict[str, Any]) -> str:
         table_html(data["aggregate_rows"], aggregate_cols),
         "<h3>2.2 Per-run final values</h3>",
         table_html(data["per_run_rows"], per_cols),
-        "<h3>2.3 Runs with highest metric values</h3>",
-        table_html(data["best_rows"], best_cols),
     ]
     for objective in ["vae_conditioning", "unet_prediction"]:
         group = [run for run in data["runs"] if run["objective"] == objective]
@@ -673,7 +676,7 @@ def build_html(data: dict[str, Any]) -> str:
                 )
                 + "</div>"
             )
-    parts.append("<h2>3. Cross-run Graphs</h2>")
+    parts.append("<h2>3. Graphs</h2>")
     for section in data["graph_sections"]:
         parts.append(graph_section_html(section))
     notes = [
@@ -762,9 +765,24 @@ def make_pdf(data: dict[str, Any], output_root: Path, pdf_path: Path) -> None:
         story.append(table)
         story.append(Spacer(1, 0.12 * inch))
 
-    def add_image(rel_path: str, max_w: float = 7.2 * inch, max_h: float = 4.5 * inch) -> None:
+    pdf_image_dir = output_root / "assets" / "pdf_images"
+    pdf_image_dir.mkdir(parents=True, exist_ok=True)
+
+    def compressed_pdf_image(rel_path: str, max_px: tuple[int, int]) -> Path | None:
         path = output_root / rel_path
         if not path.exists():
+            return None
+        out = pdf_image_dir / f"{slug(rel_path)}.jpg"
+        with Image.open(path) as img_raw:
+            img = img_raw.convert("RGB")
+            img.thumbnail(max_px, Image.Resampling.LANCZOS)
+            img.save(out, quality=PDF_IMAGE_JPEG_QUALITY, optimize=True)
+        return out
+
+    def add_image(rel_path: str, max_w: float = 7.2 * inch, max_h: float = 4.5 * inch) -> None:
+        max_px = (int(max_w / inch * 140), int(max_h / inch * 140))
+        path = compressed_pdf_image(rel_path, max_px)
+        if path is None:
             return
         with Image.open(path) as img:
             w, h = img.size
@@ -801,7 +819,7 @@ def main() -> None:
     args = parse_args()
     repo_root = Path.cwd()
     results_root = Path(args.results_root)
-    run_root = Path(args.run_root) if args.run_root else find_latest_run_root(results_root)
+    run_root = resolve_run_root(results_root, args.run_root, args.run_folder)
     output_root = Path(args.output_root)
     if output_root.exists():
         shutil.rmtree(output_root)
@@ -821,13 +839,11 @@ def main() -> None:
         "matrix_rows": run_matrix_rows(runs),
         "aggregate_rows": aggregate_rows(runs),
         "per_run_rows": per_run_rows(runs),
-        "best_rows": best_metric_rows(runs),
         "graph_sections": graphs["sections"],
     }
     write_csv(output_root / "assets" / "tables" / "run_matrix_summary.csv", data["matrix_rows"])
     write_csv(output_root / "assets" / "tables" / "aggregate_summary_by_objective.csv", data["aggregate_rows"])
     write_csv(output_root / "assets" / "tables" / "per_run_final_values.csv", data["per_run_rows"])
-    write_csv(output_root / "assets" / "tables" / "runs_with_highest_metric_values.csv", data["best_rows"])
     (output_root / "missing_artifacts.md").write_text(
         "# Missing artifacts\n\n" + ("\n".join(f"- {m['objective']} / {m['case']}: {m['artifact']} ({m['path']})" for m in missing) if missing else "None.\n"),
         encoding="utf-8",
@@ -839,7 +855,7 @@ def main() -> None:
         "html": f"{OUTPUT_BASENAME}.html",
         "markdown": f"{OUTPUT_BASENAME}.md",
         "pdf": f"{OUTPUT_BASENAME}.pdf",
-        "tables": ["run_matrix_summary.csv", "aggregate_summary_by_objective.csv", "per_run_final_values.csv", "runs_with_highest_metric_values.csv"],
+        "tables": ["run_matrix_summary.csv", "aggregate_summary_by_objective.csv", "per_run_final_values.csv"],
     }
     (output_root / "report_data_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     html_text = build_html(data)

@@ -39,35 +39,35 @@ WOOD optimizes `Z` with `loss = -Z`. Model weights are frozen; only differentiab
 
 ### VAE conditioning latent / face_002 / add black sunglasses
 
-![strip](assets/strips/wood_vae_conditioning_face_002_add_black_sunglasses.png)
+![strip](assets/strips/wood_vae_conditioning_face_002_add_black_sunglasses.jpg)
 
 ### VAE conditioning latent / face_002 / add headphones
 
-![strip](assets/strips/wood_vae_conditioning_face_002_add_headphones.png)
+![strip](assets/strips/wood_vae_conditioning_face_002_add_headphones.jpg)
 
 ### VAE conditioning latent / face_005 / add black sunglasses
 
-![strip](assets/strips/wood_vae_conditioning_face_005_add_black_sunglasses.png)
+![strip](assets/strips/wood_vae_conditioning_face_005_add_black_sunglasses.jpg)
 
 ### VAE conditioning latent / face_005 / add headphones
 
-![strip](assets/strips/wood_vae_conditioning_face_005_add_headphones.png)
+![strip](assets/strips/wood_vae_conditioning_face_005_add_headphones.jpg)
 
 ### UNet denoising prediction / face_002 / add black sunglasses
 
-![strip](assets/strips/wood_unet_prediction_face_002_add_black_sunglasses.png)
+![strip](assets/strips/wood_unet_prediction_face_002_add_black_sunglasses.jpg)
 
 ### UNet denoising prediction / face_002 / add headphones
 
-![strip](assets/strips/wood_unet_prediction_face_002_add_headphones.png)
+![strip](assets/strips/wood_unet_prediction_face_002_add_headphones.jpg)
 
 ### UNet denoising prediction / face_005 / add black sunglasses
 
-![strip](assets/strips/wood_unet_prediction_face_005_add_black_sunglasses.png)
+![strip](assets/strips/wood_unet_prediction_face_005_add_black_sunglasses.jpg)
 
 ### UNet denoising prediction / face_005 / add headphones
 
-![strip](assets/strips/wood_unet_prediction_face_005_add_headphones.png)
+![strip](assets/strips/wood_unet_prediction_face_005_add_headphones.jpg)
 
 ## Graphs
 
@@ -114,17 +114,3 @@ WOOD optimizes `Z` with `loss = -Z`. Model weights are frozen; only differentiab
 #### Geometry component contribution normalized
 
 ![Geometry component contribution normalized](assets/graphs/unet_denoising_prediction_components_normalized.png)
-
-### Cross-run comparisons
-
-#### Output disruption comparison
-
-![Output disruption comparison](assets/graphs/output_disruption_comparison.png)
-
-#### Displacement statistics
-
-![Displacement statistics](assets/graphs/displacement_statistics.png)
-
-#### Final Z vs final SSIM
-
-![Final Z vs final SSIM](assets/graphs/final_Z_vs_final_SSIM.png)
