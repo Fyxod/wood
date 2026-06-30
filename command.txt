@@ -1,0 +1,6 @@
+$HOME/.local/bin/micromamba run -p /home/interns/Desktop/mat/.micromamba/envs/mat-a6000 \
+  python -m wood.scripts.run_matrix \
+  --mat-root /home/interns/Desktop/mat \
+  --iters 150 \
+  --output-root outputs/blank_objective_ref \
+  2>&1 | tee logs/wood_blank_objective_ref_150_fixed_unet.log

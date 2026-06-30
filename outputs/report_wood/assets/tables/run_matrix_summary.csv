@@ -1,3 +1,0 @@
-model,code_objective,report_objective_name,num_cases,iterations,status
-InstructPix2Pix,vae_conditioning,VAE conditioning latent,4,150,done
-InstructPix2Pix,unet_prediction,UNet denoising prediction,4,150,done

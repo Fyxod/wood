@@ -1,3 +1,0 @@
-# Missing artifacts
-
-None.

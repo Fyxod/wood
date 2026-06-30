@@ -1,3 +1,0 @@
-model,code_objective,report_objective_name,num_runs,mean_final_Z,mean_final_loss,mean_final_ssim_to_original,mean_final_psnr_to_original,mean_final_output_ssim,mean_final_output_l2,mean_combined_max_disp_px,mean_combined_p95_disp_px,mean_fraction_clamped_total
-InstructPix2Pix,vae_conditioning,VAE conditioning latent,4,150.47189712524414,-150.47189712524414,0.5674807354807854,10.197662107212007,0.49732013046741486,0.2853976516474743,20.71989679336548,11.578600645065308,0.02854938271604938
-InstructPix2Pix,unet_prediction,UNet denoising prediction,4,0.0029961943509988487,-0.0029961943509988487,0.7988287806510925,17.29889122026085,0.6208852678537369,0.17780071315741297,5.898936986923218,3.9364110827445984,0.040123456790123455

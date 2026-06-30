@@ -34,7 +34,7 @@
       "px_limit": null
     },
     "fft_phase": {
-      "enabled": true,
+      "enabled": false,
       "phase_limit_rad": 3.141592653589793
     }
   }
