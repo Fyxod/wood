@@ -58,6 +58,8 @@ Elastic was not included in the first WOOD implementation because the current di
 
 The loss is only `loss = -Z`. Geometry is constrained by hard projection/clamping after optimizer steps. Displacement, smoothness, foldover, visual distances, and boundary saturation are logged as diagnostics only.
 
+For fp16 numerical stability, the `unet_prediction` backward pass uses fixed gradient scaling and then unscales geometry gradients before Adam. The logged scalar remains `Z`, and the logged loss remains exactly `loss = -Z`.
+
 Default hard projection ranges are mapped from the old geometric-v1 strength-style ranges:
 
 | Component | Parameter clamp |
@@ -143,3 +145,5 @@ outputs/
 ```
 
 Each run saves `history.csv`, `history.jsonl`, `config_resolved.json`, `summary.json`, `DONE.json` or `FAILED.json`, final images, flow visualizations, final/best parameter tensors, and a comparison sheet.
+
+The `theta_final.pt` and `theta_best.pt` files are local replay/debug artifacts only. They are ignored by Git and should not be pushed. These files contain only compact trainable theta tensors plus metadata, not large deterministic interpolation buffers.

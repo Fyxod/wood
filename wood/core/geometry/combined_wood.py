@@ -259,6 +259,31 @@ class CombinedWoodPerturbation(torch.nn.Module):
         )
         return stats
 
+    def theta_state(self) -> dict[str, Any]:
+        """Return only trainable perturbation parameters plus metadata.
+
+        This intentionally excludes large fixed buffers such as TPS matrices,
+        DCT bases, grids, and Delaunay interpolation weights. Those buffers are
+        deterministic from config + image size and made previous `.pt` files
+        unnecessarily huge.
+        """
+
+        return {
+            "format": "wood_theta_only_v1",
+            "height": self.height,
+            "width": self.width,
+            "channels": self.channels,
+            "config": self.config.__dict__.copy(),
+            "limits": self.limits_dict(),
+            "theta": {
+                "tps_raw": self.tps_raw.detach().cpu().clone(),
+                "delaunay_raw": self.delaunay_raw.detach().cpu().clone(),
+                "dct_coeffs": self.dct_coeffs.detach().cpu().clone(),
+                "roll_params": self.roll_params.detach().cpu().clone(),
+                "fft_phase_raw_phase": self.fft_phase.raw_phase.detach().cpu().clone(),
+            },
+        }
+
     def project_(self) -> dict[str, Any]:
         with torch.no_grad():
             blocks = [

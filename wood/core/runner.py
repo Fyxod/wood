@@ -32,6 +32,7 @@ class RunConfig:
     lr: float = 0.05
     seed: int = 1234
     init: str = "neutral"
+    unet_backward_scale: float = 8192.0
     quick: bool = False
     all_cases: bool = False
     mode: str = "smoke_timing"
@@ -49,6 +50,7 @@ REQUIRED_HISTORY_FIELDS = {
     "prompt",
     "seed",
     "blank_value",
+    "backward_scale",
     "Z_to_blank_objective",
     "psnr_to_original",
     "ssim_to_original",
@@ -180,7 +182,12 @@ def optimize_one(spec: RunSpec, cfg: RunConfig, backend, device, output_dir: Pat
         finite = bool(torch.isfinite(loss).item() and torch.isfinite(perturbed).all().item())
         if not finite:
             raise FloatingPointError(f"Non-finite Z/loss at iteration {iteration}")
-        loss.backward()
+        backward_scale = float(cfg.unet_backward_scale) if spec.objective == "unet_prediction" else 1.0
+        (loss * backward_scale).backward()
+        if backward_scale != 1.0:
+            for parameter in geometry.parameters():
+                if parameter.grad is not None:
+                    parameter.grad.div_(backward_scale)
         grad_norms = geometry.grad_norms()
         optimizer.step()
         projection = geometry.project_()
@@ -201,6 +208,7 @@ def optimize_one(spec: RunSpec, cfg: RunConfig, backend, device, output_dir: Pat
             "prompt": spec.case.prompt,
             "seed": spec.seed,
             "blank_value": cfg.blank_value,
+            "backward_scale": backward_scale,
             "iteration_count": cfg.iters,
             "seconds_iter": seconds_iter,
             "seconds_elapsed": time.monotonic() - started,
@@ -224,7 +232,7 @@ def optimize_one(spec: RunSpec, cfg: RunConfig, backend, device, output_dir: Pat
         if best is None or row["Z"] > best["row"]["Z"]:
             best = {
                 "row": row,
-                "state": {k: v.detach().cpu().clone() for k, v in geometry.state_dict().items()},
+                "theta_state": geometry.theta_state(),
                 "perturbed": perturbed.detach().clone(),
             }
 
@@ -237,8 +245,11 @@ def optimize_one(spec: RunSpec, cfg: RunConfig, backend, device, output_dir: Pat
     final_perturbed = tensor_to_pil(final_perturbed_tensor)
     final_perturbed.save(output_dir / "perturbed.png")
     _component_flow_images(final_aux, output_dir, geometry.component_limit_for_flow)
-    torch.save(geometry.state_dict(), output_dir / "theta_final.pt")
-    torch.save(best["state"], output_dir / "theta_best.pt")
+    # Local replay/debug artifacts only. `.gitignore` excludes all `.pt` files
+    # so these should not be pushed. The payload is intentionally theta-only,
+    # not the full state_dict with large deterministic buffers.
+    torch.save(geometry.theta_state(), output_dir / "theta_final.pt")
+    torch.save(best["theta_state"], output_dir / "theta_best.pt")
     write_json(
         output_dir / "geometry_params_final.json",
         {

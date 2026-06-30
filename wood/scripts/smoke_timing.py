@@ -15,6 +15,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lr", type=float, default=0.05)
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--init", choices=["neutral", "small_random"], default="neutral")
+    parser.add_argument("--unet-backward-scale", type=float, default=8192.0)
     parser.add_argument("--skip-final-edits", action="store_true", help="Skip final Instruct edited outputs during debugging only.")
     parser.add_argument("--output-root", default=None)
     return parser.parse_args()
@@ -36,6 +37,7 @@ def main() -> None:
         lr=args.lr,
         seed=args.seed,
         init=args.init,
+        unet_backward_scale=args.unet_backward_scale,
         quick=args.quick,
         all_cases=args.all_cases,
         mode="smoke_timing",
