@@ -32,7 +32,7 @@ RUN_FOLDER_NAME = ""
 # Default report quality. Keep this True for the compact report currently used
 # in the repo. Set to False, or pass --no-compress-report, to generate a larger
 # high-quality report.
-COMPRESS_REPORT = True
+COMPRESS_REPORT = False
 
 COMPRESSED_QUALITY = {
     "image_size": (420, 420),

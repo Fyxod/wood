@@ -15,17 +15,17 @@
   "components": {
     "tps": {
       "enabled": true,
-      "norm_limit": 0.007,
+      "norm_limit": 0.008,
       "px_limit": null
     },
     "delaunay": {
       "enabled": true,
-      "norm_limit": 0.010,
+      "norm_limit": 0.015,
       "px_limit": null
     },
     "rolling": {
       "enabled": true,
-      "norm_limit": 0.009,
+      "norm_limit": 0.01,
       "px_limit": null
     },
     "dct": {

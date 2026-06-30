@@ -1,5 +1,5 @@
 {
-  "run_id": "20260630_070226",
+  "run_id": "20260630_081948",
   "num_runs": 8,
   "num_missing": 0,
   "html": "wood_report.html",
@@ -10,16 +10,16 @@
     "aggregate_summary_by_objective.csv",
     "per_run_final_values.csv"
   ],
-  "compress_report": true,
+  "compress_report": false,
   "quality": {
     "image_size": [
-      420,
-      420
+      512,
+      512
     ],
-    "strip_format": "jpg",
-    "strip_quality": 82,
-    "graph_dpi": 120,
-    "compress_pdf_images": true,
-    "pdf_image_quality": 68
+    "strip_format": "png",
+    "strip_quality": null,
+    "graph_dpi": 150,
+    "compress_pdf_images": false,
+    "pdf_image_quality": 95
   }
 }
