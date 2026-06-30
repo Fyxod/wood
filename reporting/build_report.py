@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
-from PIL import Image, ImageDraw
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageOps
 
 
 TITLE = "WOOD: InstructPix2Pix White-box Geometry Results"
@@ -385,18 +385,42 @@ def copy_or_placeholder(path: Path, size: tuple[int, int], label: str) -> Image.
     return img
 
 
+def make_input_difference_image(run: dict[str, Any], output_root: Path, size: tuple[int, int]) -> Path:
+    """Create an amplified absolute input-difference panel for a run strip."""
+    diff_dir = output_root / "assets" / "diffs"
+    diff_dir.mkdir(parents=True, exist_ok=True)
+    path = diff_dir / f"input_difference_{run['objective']}_{run['case_slug']}.png"
+
+    original_path = run["images"]["original"]
+    perturbed_path = run["images"]["perturbed"]
+    if not original_path.exists() or not perturbed_path.exists():
+        placeholder = copy_or_placeholder(Path("__missing__"), size, "Input Difference")
+        placeholder.save(path, optimize=True)
+        return path
+
+    original = Image.open(original_path).convert("RGB").resize(size, Image.Resampling.LANCZOS)
+    perturbed = Image.open(perturbed_path).convert("RGB").resize(size, Image.Resampling.LANCZOS)
+    diff = ImageChops.difference(perturbed, original)
+    diff = ImageEnhance.Brightness(diff).enhance(8.0)
+    diff = ImageOps.autocontrast(diff, cutoff=0.5)
+    diff.save(path, optimize=True)
+    return path
+
+
 def make_strip(run: dict[str, Any], output_root: Path, quality: dict[str, Any]) -> str:
     strips_dir = output_root / "assets" / "strips"
     strips_dir.mkdir(parents=True, exist_ok=True)
+    base_size = tuple(quality["image_size"])
+    diff_path = make_input_difference_image(run, output_root, base_size)
     cells = [
         ("Original", run["images"]["original"]),
         ("Objective Ref", run["images"]["reference"]),
         ("Perturbed", run["images"]["perturbed"]),
+        ("Input Difference x8", diff_path),
         ("Clean Edit", run["images"]["clean_edited"]),
         ("Perturbed Edit", run["images"]["perturbed_edited"]),
     ]
     loaded = []
-    base_size = tuple(quality["image_size"])
     for label, path in cells:
         img = copy_or_placeholder(path, base_size, label).resize(base_size, Image.Resampling.LANCZOS)
         loaded.append((label, img))
