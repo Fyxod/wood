@@ -12,28 +12,28 @@ WOOD optimizes `Z` with `loss = -Z`. Model weights are frozen; only differentiab
 
 | model | code objective | objective | cases | iterations | status |
 | --- | --- | --- | --- | --- | --- |
-| InstructPix2Pix | vae_conditioning | VAE conditioning latent | 4.0000 | 150.00 | done |
-| InstructPix2Pix | unet_prediction | UNet denoising prediction | 4.0000 | 150.00 | done |
+| InstructPix2Pix | vae_conditioning | VAE conditioning latent | 4.0000 | 300.00 | done |
+| InstructPix2Pix | unet_prediction | UNet denoising prediction | 4.0000 | 300.00 | done |
 
 ## Aggregate summary
 
 | model | objective | runs | mean final Z | mean SSIM original | mean output SSIM | mean output L2 |
 | --- | --- | --- | --- | --- | --- | --- |
-| InstructPix2Pix | VAE conditioning latent | 4.0000 | 128.16 | 0.9966 | 0.9037 | 0.0322 |
-| InstructPix2Pix | UNet denoising prediction | 4.0000 | 0.0026 | 0.9949 | 0.8745 | 0.0359 |
+| InstructPix2Pix | VAE conditioning latent | 4.0000 | 129.06 | 0.9833 | 0.8309 | 0.0520 |
+| InstructPix2Pix | UNet denoising prediction | 4.0000 | 0.0026 | 0.9952 | 0.8802 | 0.0358 |
 
 ## Per-run final values
 
 | objective | face | prompt | final Z | final loss | SSIM original | output SSIM | output L2 | max disp px |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| VAE conditioning latent | face_002 | add black sunglasses | 127.54 | -127.54 | 0.9961 | 0.8895 | 0.0319 | 2.5790 |
-| VAE conditioning latent | face_002 | add headphones | 127.61 | -127.61 | 0.9980 | 0.9045 | 0.0312 | 1.3305 |
-| VAE conditioning latent | face_005 | add black sunglasses | 128.73 | -128.73 | 0.9966 | 0.9275 | 0.0275 | 2.6911 |
-| VAE conditioning latent | face_005 | add headphones | 128.77 | -128.77 | 0.9956 | 0.8932 | 0.0382 | 3.1632 |
-| UNet denoising prediction | face_002 | add black sunglasses | 0.0024 | -0.0024 | 0.9946 | 0.8644 | 0.0364 | 3.9605 |
-| UNet denoising prediction | face_002 | add headphones | 0.0024 | -0.0024 | 0.9949 | 0.8500 | 0.0412 | 3.0583 |
-| UNet denoising prediction | face_005 | add black sunglasses | 0.0029 | -0.0029 | 0.9951 | 0.9021 | 0.0310 | 4.3791 |
-| UNet denoising prediction | face_005 | add headphones | 0.0029 | -0.0029 | 0.9950 | 0.8814 | 0.0350 | 4.8791 |
+| VAE conditioning latent | face_002 | add black sunglasses | 127.66 | -127.66 | 0.9978 | 0.9105 | 0.0283 | 1.5777 |
+| VAE conditioning latent | face_002 | add headphones | 127.55 | -127.55 | 0.9973 | 0.8973 | 0.0331 | 1.6837 |
+| VAE conditioning latent | face_005 | add black sunglasses | 131.70 | -131.70 | 0.9493 | 0.6895 | 0.0965 | 26.253 |
+| VAE conditioning latent | face_005 | add headphones | 129.32 | -129.32 | 0.9890 | 0.8263 | 0.0503 | 11.527 |
+| UNet denoising prediction | face_002 | add black sunglasses | 0.0024 | -0.0024 | 0.9951 | 0.8674 | 0.0368 | 2.7150 |
+| UNet denoising prediction | face_002 | add headphones | 0.0024 | -0.0024 | 0.9959 | 0.8633 | 0.0378 | 3.2953 |
+| UNet denoising prediction | face_005 | add black sunglasses | 0.0029 | -0.0029 | 0.9955 | 0.9136 | 0.0293 | 3.0420 |
+| UNet denoising prediction | face_005 | add headphones | 0.0029 | -0.0029 | 0.9942 | 0.8763 | 0.0392 | 3.3805 |
 
 ## Image strips
 
